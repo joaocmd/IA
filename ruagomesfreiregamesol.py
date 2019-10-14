@@ -1,7 +1,9 @@
 import math
 import pickle
 import time
-from enum import Enum
+from collections import deque
+import itertools
+import functools
 
 TAXI = 0
 AUTOCARRO = 1
@@ -10,69 +12,97 @@ METRO = 2
 TRANSPORT = 0
 DEST = 1
 
-class BFSNode:
-  def __init__(self, id, origin_node, transport, tickets):
-    self.id = id
+class Node:
+  def __init__(self, origin_node, positions, transports, tickets):
     self.origin_node = origin_node
-    self.transport = transport
-    self.tickets = tickets 
+    self.positions = positions
+    self.transports = transports
+    self.tickets = tickets
 
   def __repr__(self):
-    return f"({self.transport}, {self.id})"
+    return f"({self.transports}, {self.positions})"
+  
+  def __hash__(self):
+    return hash((tuple(self.positions), tuple(self.tickets)))
+  
+  def __eq__(self, other):
+    if other == None:
+      return False
 
+    return (self.positions == other.positions and
+            self.tickets == other.tickets)
 
 class SearchProblem:
 
   def __init__(self, goal, model, auxheur = []):
     self.map = model
     self.goal = goal
+    self.coords = auxheur
 
   def traceback(self, dest):
     current_node = dest
-    solution =  []
-    while current_node != []:
-      transports = [] if current_node.transport == None else [current_node.transport]
-      solution.insert(0, [transports, [current_node.id]])
+    solution =  deque() #  Comparar velocidades com listas
+    while current_node != None:
+      solution.appendleft([current_node.transports, current_node.positions])
       current_node = current_node.origin_node
     
-    return solution
+    return list(solution)
+
+  def Astar(self, init, goal, tickets):
+    num_agents = len(init)
+
+    init_node = Node(None, init[:], [], tickets)
+    open_nodes = deque([init_node]) # double linked list
+    open_node = open_nodes.append
+
+    closed_nodes = set()
+    close_node = closed_nodes.add
+
+    get_next = open_nodes.popleft
+    while open_nodes:
+      node = get_next()
+      close_node(node)
+
       
-  def in_frontier(self, frontier, id):
-    for node in frontier:
-      if node.id == id:
-        return True
+      if node.positions == goal: # same order comparison
+        return self.traceback(node)
 
-    return False
+      # generate all possible combinations
+      reachable = [self.map[pos] for pos in node.positions]
+      combinations = itertools.product(*reachable)
 
-  def BFS(self, init, goal, tickets):
+      unique = []
+      for comb in combinations:
+        found = False
+        for i in range(num_agents):
+          for j in range(i + 1, num_agents):
+              if comb[i][DEST] == comb[j][DEST]:
+                found = True
+                break
+        if not found:
+          unique.append(comb)
 
-    nodes = [None] * 114     # node list
-    nodes[init[0]] = BFSNode(init[0], [], None, tickets) 
+      print("uniq:", unique)
+      for i in range(num_agents):
+        
+        for path in self.map[node.positions[i]]:
+          new_tickets = node.tickets[:]
+          transports = []
 
-    explored = [False] * 114 # bool list
-    frontier = [nodes[init[0]]]     # node list
+          if node.tickets[path[TRANSPORT]] > 0:
+            new_tickets[path[TRANSPORT]] -= 1
+            dest = path[DEST]
+            #print(f"To: ({path[TRANSPORT]}, {dest})")
+            dest_node = Node(node, dest, transports, new_tickets)
 
-    while frontier != []:
-      node = frontier.pop(0)
-      explored[node.id] = True
-      print(f"-----------------EXPANDING-----------------")
-      print(f"From: {node.id}")
-      print(self.map[node.id])
-      
-      for path in self.map[node.id]:
-        dest = path[DEST]
-        print(f"To: ({path[TRANSPORT]}, {dest})")
-        if not explored[dest] and not self.in_frontier(frontier, dest) and node.tickets[path[TRANSPORT]] > 0: #O(n)
-          new_tickets = node.tickets[:] 
-          new_tickets[path[TRANSPORT]] -= 1
-          nodes[dest] = BFSNode(dest, node, path[TRANSPORT], new_tickets)
-          if dest == goal[0]: # reached goal, traceback
-            return self.traceback(nodes[dest])
-            
-          frontier.append(nodes[dest])
+            if dest_node not in closed_nodes:  
+              if dest_node not in open_nodes: # Ou o caminho é melhor, se o caminho for melhor é trocar
+                open_node(dest_node) # Inserir ordenado
 
     return []
 
 
   def search(self, init, limitexp = 2000, limitdepth = 10, tickets = [math.inf,math.inf,math.inf]):
-    return self.BFS(init, self.goal, tickets)
+    res = self.Astar(init, self.goal, tickets)
+    print(res)
+    return res
