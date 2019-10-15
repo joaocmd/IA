@@ -47,7 +47,7 @@ class SearchProblem:
 
   def traceback(self, dest):
     current_node = dest
-    solution =  deque() #  Comparar velocidades com listas
+    solution =  deque()
     while current_node != None:
       solution.appendleft([list(current_node.transports), list(current_node.positions)])
       current_node = current_node.origin_node
