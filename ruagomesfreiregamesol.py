@@ -3,7 +3,6 @@ import pickle
 import time
 from collections import deque
 import itertools
-import functools
 from heapq import heappush, heappop
 
 class Node:
@@ -46,6 +45,7 @@ class Node:
     return (self.positions == other.positions and
             self.tickets == other.tickets)
 
+
 class SearchProblem:
 
   def __init__(self, goal, model, auxheur = []):
@@ -61,7 +61,6 @@ class SearchProblem:
       current_node = current_node.origin_node
     
     return list(solution)
-
 
   def orderedGoal(self, node):
     return node.positions == self.goal
@@ -92,7 +91,6 @@ class SearchProblem:
       # but we're sure the cost is worse because it has been already picked
       # from the queue. It's not worth checking if the node is in open_nodes
       # when adding because that would take time O(n) since open_nodes is a priority queue
-      # print(closed_nodes)
       if node in closed_nodes:
         continue
       close_node(node)
