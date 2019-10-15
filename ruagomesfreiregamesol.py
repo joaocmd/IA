@@ -28,8 +28,6 @@ class Node:
     for i in range(len(goal)):
       self.cost += ((get_coords(self.positions[i])[0] - get_coords(goal[i])[0])**2 +
                     (get_coords(self.positions[i])[1] - get_coords(goal[i])[1])**2)
-    
-
 
   def __repr__(self):
     return f"({self.transports}, {self.positions}, {self.tickets})"
@@ -51,7 +49,7 @@ class SearchProblem:
 
   def __init__(self, goal, model, auxheur = []):
     self.map = model
-    self.goal = goal
+    self.goal = tuple(goal)
     self.coords = auxheur
 
   def traceback(self, dest):
@@ -63,11 +61,20 @@ class SearchProblem:
     
     return list(solution)
 
-  def Astar(self, init, goal, tickets):
+
+  def orderedGoal(self, node):
+    return node.positions == self.goal
+
+  def unorderedGoal(self, node):
+    return set(node.positions) == set(self.goal)
+
+  def search(self, init, limitexp = 2000, limitdepth = 10, tickets = [math.inf,math.inf,math.inf], anyorder = False):
+
     num_agents = len(init)
+    goal_achieved = self.unorderedGoal if anyorder else self.orderedGoal
 
     init_node = Node(None, init[:], [], tickets, 0)
-    init_node.calculate_cost(goal, self.coords)
+    init_node.calculate_cost(self.goal, self.coords)
 
     open_nodes = [init_node]
 
@@ -85,8 +92,7 @@ class SearchProblem:
         continue
       close_node(node)
 
-      
-      if node.positions == tuple(goal): # same order comparison
+      if goal_achieved(node):
         return self.traceback(node)
 
       # Generate all possible from neighbours
@@ -113,18 +119,12 @@ class SearchProblem:
           if new_tickets[movement[TRANSPORT]] < 0:
             out_of_tickets = True
 
-          if not out_of_tickets:
-            dest_node = Node(node, [path[DEST] for path in dest], [path[TRANSPORT] for path in dest],
-                             new_tickets, node.gcost+ 1)
-            if dest_node not in closed_nodes:
-              dest_node.calculate_cost(goal, self.coords)
-              #if dest_node not in open_nodes: # Ou o caminho é melhor, se o caminho for melhor é trocar
-              heappush(open_nodes, dest_node) # Inserir ordenado
+        if not out_of_tickets:
+          dest_node = Node(node, [path[DEST] for path in dest], [path[TRANSPORT] for path in dest],
+                            new_tickets, node.gcost+ 1)
+          if dest_node not in closed_nodes:
+            dest_node.calculate_cost(self.goal, self.coords)
+            #if dest_node not in open_nodes: # Ou o caminho é melhor, se o caminho for melhor é trocar
+            heappush(open_nodes, dest_node) # Inserir ordenado
 
     return []
-
-
-  def search(self, init, limitexp = 2000, limitdepth = 10, tickets = [math.inf,math.inf,math.inf], anyOrder = false):
-    res = self.Astar(init, self.goal, tickets)
-    print(res)
-    return res
