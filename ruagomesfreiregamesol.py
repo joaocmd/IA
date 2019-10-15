@@ -78,10 +78,11 @@ class SearchProblem:
     while open_nodes:
       node = heappop(open_nodes)
 
-      # Even if it's closed the node might have been added twice (or more)
-      # It's not worth checking if the node is in open_nodes when adding
-      # because that would take time O(n)
-      #print(closed_nodes)
+      # Even if it's closed the node might have been added more than once
+      # but we're sure the cost is worse because it has been already picked
+      # from the queue. It's not worth checking if the node is in open_nodes
+      # when adding because that would take time O(n) since open_nodes is a priority queue
+      # print(closed_nodes)
       if node in closed_nodes:
         continue
       close_node(node)
@@ -108,17 +109,16 @@ class SearchProblem:
       for dest in diff_positions:
         new_tickets = list(node.tickets)
         out_of_tickets = False
-        for movement in dest:
-          new_tickets[movement[TRANSPORT]] -= 1
-          if new_tickets[movement[TRANSPORT]] < 0:
+        for move in dest:
+          new_tickets[move[TRANSPORT]] -= 1
+          if new_tickets[move[TRANSPORT]] < 0:
             out_of_tickets = True
 
         if not out_of_tickets:
           dest_node = Node(node, [path[DEST] for path in dest], [path[TRANSPORT] for path in dest],
-                            new_tickets, node.gcost+ 1)
+                           new_tickets, node.gcost+ 1)
           if dest_node not in closed_nodes:
-            dest_node.calculate_cost(self.goal, self.coords)
-            #if dest_node not in open_nodes: # Ou o caminho é melhor, se o caminho for melhor é trocar
-            heappush(open_nodes, dest_node) # Inserir ordenado
+            calculate_cost(dest_node, self.goal, self.coords)
+            heappush(open_nodes, dest_node)
 
     return []
