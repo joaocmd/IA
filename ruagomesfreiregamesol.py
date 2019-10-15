@@ -6,13 +6,6 @@ import itertools
 import functools
 from heapq import heappush, heappop
 
-TAXI = 0
-AUTOCARRO = 1
-METRO = 2
-
-TRANSPORT = 0
-DEST = 1
-
 class Node:
   def __init__(self, origin_node, positions, transports, tickets, g):
     self.origin_node = origin_node
@@ -70,6 +63,7 @@ class SearchProblem:
 
   def search(self, init, limitexp = 2000, limitdepth = 10, tickets = [math.inf,math.inf,math.inf], anyorder = False):
 
+    TRANSPORT, DEST = 0, 1
     num_agents = len(init)
     goal_achieved = self.unorderedGoal if anyorder else self.orderedGoal
 
