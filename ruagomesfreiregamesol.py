@@ -14,7 +14,15 @@ class Node:
     self.tickets = tuple(tickets)
     self.gcost = self.cost = g
 
-  def calculate_cost(self, goal, coords):
+  def calculate_ordered(self, goal, coords):
+    def get_coords(pos):
+      return coords[pos-1]
+
+    for i in range(len(goal)):
+      self.cost += ((get_coords(self.positions[i])[0] - get_coords(goal[i])[0])**2 +
+                    (get_coords(self.positions[i])[1] - get_coords(goal[i])[1])**2)
+
+  def calculate_unordered(self, goal, coords):
     def get_coords(pos):
       return coords[pos-1]
 
@@ -65,10 +73,12 @@ class SearchProblem:
 
     TRANSPORT, DEST = 0, 1
     num_agents = len(init)
+
     goal_achieved = self.unorderedGoal if anyorder else self.orderedGoal
+    calculate_cost = Node.calculate_unordered if anyorder else Node.calculate_ordered
 
     init_node = Node(None, init[:], [], tickets, 0)
-    init_node.calculate_cost(self.goal, self.coords)
+    calculate_cost(init_node, self.goal, self.coords)
 
     open_nodes = [init_node]
 
