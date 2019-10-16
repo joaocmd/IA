@@ -95,6 +95,8 @@ class SearchProblem:
       # but we're sure the cost is worse because it has been already picked
       # from the queue. It's not worth checking if the node is in open_nodes
       # when adding because that would take time O(n) since open_nodes is a priority queue
+      # This if can be done because for two nodes to be the same they have to occupy the same
+      # positions on the map with the same number of available tickets
       if node in closed_nodes:
         continue
       close_node(node)
@@ -109,13 +111,13 @@ class SearchProblem:
       # Remove neighbours with agents on same position
       diff_positions = []
       for comb in combinations:
-        found = False
+        occupy_same = False
         for i in range(num_agents):
           for j in range(i + 1, num_agents):
               if comb[i][DEST] == comb[j][DEST]:
-                found = True
+                occupy_same = True
                 break
-        if not found:
+        if not occupy_same:
           diff_positions.append(comb)
 
       for dest in diff_positions:
@@ -129,8 +131,8 @@ class SearchProblem:
         if not out_of_tickets:
           dest_node = Node(node, [path[DEST] for path in dest], [path[TRANSPORT] for path in dest],
                            new_tickets, node.gcost+ 1)
-          if dest_node not in closed_nodes:
-            calculate_cost(dest_node, self.goal, self.coords)
-            heappush(open_nodes, dest_node)
+    #      if dest_node not in closed_nodes: # Check if this if is worth
+          calculate_cost(dest_node, self.goal, self.coords)
+          heappush(open_nodes, dest_node)
 
     return []
