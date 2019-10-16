@@ -66,10 +66,10 @@ class SearchProblem:
     
     return list(solution)
 
-  def orderedGoal(self, node):
+  def ordered_goal(self, node):
     return node.positions == self.goal
 
-  def unorderedGoal(self, node):
+  def unordered_goal(self, node):
     return set(node.positions) == set(self.goal)
 
   def search(self, init, limitexp = 2000, limitdepth = 10, tickets = [math.inf,math.inf,math.inf], anyorder = False):
@@ -77,7 +77,7 @@ class SearchProblem:
     TRANSPORT, DEST = 0, 1
     num_agents = len(init)
 
-    goal_achieved = self.unorderedGoal if anyorder else self.orderedGoal
+    goal_achieved = self.unordered_goal if anyorder else self.ordered_goal
     calculate_cost = Node.calculate_unordered if anyorder else Node.calculate_ordered
 
     init_node = Node(None, init[:], [], tickets, 0)
