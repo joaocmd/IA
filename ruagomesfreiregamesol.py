@@ -43,7 +43,7 @@ class Node:
     return self.cost < other.cost
 
   def __eq__(self, other):
-    if (other == None):
+    if other == None:
       return False
 
     return (self.positions == other.positions and
