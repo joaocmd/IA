@@ -1,3 +1,7 @@
+#João David - 89471
+#Pedro Galhardo - 89522
+#Grupo - 21
+
 import math
 import pickle
 import time
