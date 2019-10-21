@@ -24,13 +24,13 @@ class Node:
     self.cost += max(distances[goal][i] for i in self.positions)
 
   def __str__(self):
-    return f"{self.positions}: {self.cost}"
+    return f"{self.positions}: {self.gcost}-{self.cost}"
 
   def __hash__(self):
     return hash((self.positions, self.tickets, self.goal))
   
   def __lt__(self, other):
-    return self.cost < other.cost
+    return self.gcost > other.gcost if self.cost == other.cost else self.cost < other.cost
 
   def __eq__(self, other):
     if other == None:
@@ -52,7 +52,7 @@ class SearchProblem:
 
   def traceback(self, dest):
     current_node = dest
-    solution =  deque()
+    solution = deque()
     while current_node != None:
       solution.appendleft([list(current_node.transports), list(current_node.positions)])
       current_node = current_node.origin_node
@@ -89,8 +89,11 @@ class SearchProblem:
     open_nodes = []
 
     start_positions = init[:]
-    for goal in itertools.permutations(self.goal):
-      heappush(open_nodes, Node(None, start_positions, [], tickets, goal, 0, self.distances))
+    if anyorder:
+        for goal in itertools.permutations(self.goal):
+            heappush(open_nodes, Node(None, start_positions, [], tickets, goal, 0, self.distances))
+    else:
+        open_nodes.append(Node(None, start_positions, [], tickets, self.goal, 0, self.distances))
 
     closed_nodes = set()
     close_node = closed_nodes.add
