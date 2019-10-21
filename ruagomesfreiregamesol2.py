@@ -27,7 +27,7 @@ class Node:
     return f"{self.positions}: {self.cost}"
 
   def __hash__(self):
-    return hash((self.positions, self.tickets))
+    return hash((self.positions, self.tickets, self.goal))
   
   def __lt__(self, other):
     return self.cost < other.cost
@@ -37,7 +37,8 @@ class Node:
       return False
 
     return (self.positions == other.positions and
-            self.tickets == other.tickets)
+            self.tickets == other.tickets and
+            self.goal == other.goal)
 
 
 class SearchProblem:
@@ -96,6 +97,7 @@ class SearchProblem:
 
     while open_nodes:
       node = heappop(open_nodes)
+      print(node)
 
       if node in closed_nodes:
         continue
