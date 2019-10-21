@@ -17,25 +17,12 @@ class Node:
     self.tickets = tuple(tickets)
     self.gcost = self.cost = g
 
-  def calculate_ordered(self, goal, coords):
-    def get_coords(pos):
-      return coords[pos-1]
+  def calculate_ordered(self, goal, distances):
+    return min(self.calculate_unordered(goal_i, distances) for goal_i in goal)
 
-    for i in range(len(goal)):
-      self.cost += ((get_coords(self.positions[i])[0] - get_coords(goal[i])[0])**2 +
-                    (get_coords(self.positions[i])[1] - get_coords(goal[i])[1])**2)
+  def calculate_unordered(self, goal, distances):
+    return self.cost + max(distances[goal][i] for i in self.positions)
 
-  def calculate_unordered(self, goal, coords):
-    def get_coords(pos):
-      return coords[pos-1]
-
-    for i in range(len(goal)):
-      self.cost += ((get_coords(self.positions[i])[0] - get_coords(goal[i])[0])**2 +
-                    (get_coords(self.positions[i])[1] - get_coords(goal[i])[1])**2)
-
-  def __repr__(self):
-    return f"({self.transports}, {self.positions}, {self.tickets})"
-  
   def __hash__(self):
     return hash((self.positions, self.tickets))
   
@@ -55,7 +42,9 @@ class SearchProblem:
   def __init__(self, goal, model, auxheur = []):
     self.map = model
     self.goal = tuple(goal)
-    self.coords = auxheur
+    self.n_agents = len(goal)
+    self.distances = {}
+    self.calc_distances()
 
   def traceback(self, dest):
     current_node = dest
@@ -72,56 +61,44 @@ class SearchProblem:
   def unordered_goal(self, node):
     return set(node.positions) == set(self.goal)
 
-
-  def in_frontier(self, frontier, id):
-    for node in frontier:
-      if node == id:
-        return True
-
-    return False
-
-  def BFS(self, init):
-
+  def calc_distances(self):
     DEST = 1
-    num_agents = len(init)
-    distances = [None] * num_agents
+    n_nodes = len(self.map)
     
-    for i in range(num_agents):
-      distance = [-1] * 114
-      distance[init[i]] = 0
-      frontier = [init[i]]
+    for start in self.goal:
+      distances = [-1] * n_nodes
+      distances[start] = 0
+
+      frontier = [start]
+      next = frontier.pop
+      add_node = frontier.append
 
       while frontier != []:
-        node = frontier.pop(0)
+        node = next(0)
 
         for path in self.map[node]:
           dest = path[DEST]
 
-          if distance[dest] == -1 and not self.in_frontier(frontier, dest):
-            distance[dest] = distance[node] + 1
-            frontier.append(dest)
+          if distances[dest] == -1 and dest not in frontier:
+            distances[dest] = distances[node] + 1
+            add_node(dest)
 
-      distances[i] = distance
-
-    return distances
+      self.distances[start] = distances
 
   def search(self, init, limitexp = 2000, limitdepth = 10, tickets = [math.inf,math.inf,math.inf], anyorder = False):
 
     TRANSPORT, DEST = 0, 1
-    num_agents = len(init)
 
     goal_achieved = self.unordered_goal if anyorder else self.ordered_goal
     calculate_cost = Node.calculate_unordered if anyorder else Node.calculate_ordered
+    if anyorder: self.goal = itertools.permutations(self.goal)
 
     init_node = Node(None, init[:], [], tickets, 0)
-    calculate_cost(init_node, self.goal, self.coords)
 
     open_nodes = [init_node]
 
     closed_nodes = set()
     close_node = closed_nodes.add
-
-    distances = self.BFS(init)
 
     while open_nodes:
       node = heappop(open_nodes)
@@ -147,8 +124,8 @@ class SearchProblem:
       diff_positions = []
       for comb in combinations:
         occupy_same = False
-        for i in range(num_agents):
-          for j in range(i + 1, num_agents):
+        for i in range(self.n_agents):
+          for j in range(i + 1, self.n_agents):
               if comb[i][DEST] == comb[j][DEST]:
                 occupy_same = True
                 break
@@ -167,7 +144,7 @@ class SearchProblem:
           dest_node = Node(node, [path[DEST] for path in dest], [path[TRANSPORT] for path in dest],
                            new_tickets, node.gcost+ 1)
     #      if dest_node not in closed_nodes: # Check if this if is worth
-          calculate_cost(dest_node, self.goal, self.coords)
+          dest_node.cost = calculate_cost(dest_node, self.goal, self.distances)
           heappush(open_nodes, dest_node)
 
     return []
