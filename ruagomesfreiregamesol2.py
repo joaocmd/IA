@@ -97,7 +97,6 @@ class SearchProblem:
 
     while open_nodes:
       node = heappop(open_nodes)
-      print(node)
 
       if node in closed_nodes:
         continue
@@ -133,7 +132,7 @@ class SearchProblem:
         if not out_of_tickets:
           dest_node = Node(node, [path[DEST] for path in dest], [path[TRANSPORT] for path in dest],
                            new_tickets, node.goal, node.gcost + 1, self.distances)
-          if dest_node not in closed_nodes: # Check if this if is worth
-            heappush(open_nodes, dest_node)
+          #if dest_node not in closed_nodes: # Check if this if is worth
+          heappush(open_nodes, dest_node)
 
     return []
