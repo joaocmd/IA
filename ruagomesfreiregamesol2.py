@@ -19,10 +19,6 @@ class Node:
 		self.gcost = gcost
 		self.cost = gcost + max(distances[goal[i]][positions[i]] for i in range(len(positions)))
 
-
-	def calculate_h(self, goal, distances):
-		self.cost += max(distances[goal][i] for i in self.positions)
-
 	def __str__(self):
 		return f"{self.positions}: {self.gcost}-{self.cost}"
 
@@ -90,10 +86,10 @@ class SearchProblem:
 
 		start_positions = init[:]
 		if anyorder:
-				for goal in itertools.permutations(self.goal):
-						heappush(open_nodes, Node(None, start_positions, [], tickets, goal, 0, self.distances))
+			for goal in itertools.permutations(self.goal):
+					heappush(open_nodes, Node(None, start_positions, [], tickets, goal, 0, self.distances))
 		else:
-				open_nodes.append(Node(None, start_positions, [], tickets, self.goal, 0, self.distances))
+			open_nodes.append(Node(None, start_positions, [], tickets, self.goal, 0, self.distances))
 
 		closed_nodes = set()
 		close_node = closed_nodes.add
@@ -118,9 +114,9 @@ class SearchProblem:
 				occupy_same = False
 				for i in range(self.n_agents):
 					for j in range(i + 1, self.n_agents):
-							if comb[i][DEST] == comb[j][DEST]:
-								occupy_same = True
-								break
+						if comb[i][DEST] == comb[j][DEST]:
+							occupy_same = True
+							break
 				if not occupy_same:
 					diff_positions.append(comb)
 
@@ -134,7 +130,7 @@ class SearchProblem:
 
 				if not out_of_tickets:
 					dest_node = Node(node, [path[DEST] for path in dest], [path[TRANSPORT] for path in dest],
-													 new_tickets, node.goal, node.gcost + 1, self.distances)
+										new_tickets, node.goal, node.gcost + 1, self.distances)
 					#if dest_node not in closed_nodes: # Check if this if is worth
 					heappush(open_nodes, dest_node)
 
