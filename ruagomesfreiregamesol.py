@@ -72,6 +72,39 @@ class SearchProblem:
   def unordered_goal(self, node):
     return set(node.positions) == set(self.goal)
 
+
+  def in_frontier(self, frontier, id):
+    for node in frontier:
+      if node == id:
+        return True
+
+    return False
+
+  def BFS(self, init):
+
+    DEST = 1
+    num_agents = len(init)
+    distances = [None] * num_agents
+    
+    for i in range(num_agents):
+      distance = [-1] * 114
+      distance[init[i]] = 0
+      frontier = [init[i]]
+
+      while frontier != []:
+        node = frontier.pop(0)
+
+        for path in self.map[node]:
+          dest = path[DEST]
+
+          if distance[dest] == -1 and not self.in_frontier(frontier, dest):
+            distance[dest] = distance[node] + 1
+            frontier.append(dest)
+
+      distances[i] = distance
+
+    return distances
+
   def search(self, init, limitexp = 2000, limitdepth = 10, tickets = [math.inf,math.inf,math.inf], anyorder = False):
 
     TRANSPORT, DEST = 0, 1
@@ -87,6 +120,8 @@ class SearchProblem:
 
     closed_nodes = set()
     close_node = closed_nodes.add
+
+    distances = self.BFS(init)
 
     while open_nodes:
       node = heappop(open_nodes)
