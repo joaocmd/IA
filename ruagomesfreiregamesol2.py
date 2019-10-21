@@ -101,7 +101,7 @@ class SearchProblem:
 			close_node(node)
 
 			if node.positions == node.goal:
-				print(f"Expansions: {exp})
+				print(f"Expansions: {exp}")
 				return self.traceback(node)
 
 			#is this it?
