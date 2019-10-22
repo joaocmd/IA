@@ -118,8 +118,8 @@ class SearchProblem:
 			for comb in combinations:
 				occupy_same = False
 				for i in range(self.n_agents):
-					for j in range(i + 1, self.n_agents):
-						if comb[i][DEST] == comb[j][DEST]:
+					for j in comb[i+1:]:
+						if comb[i][DEST] == j[DEST]:
 							occupy_same = True
 							break
 				if not occupy_same:
