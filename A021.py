@@ -92,7 +92,7 @@ class SearchProblem:
 		closed_nodes = set()
 		close_node = closed_nodes.add
 
-		exp = 0
+		expansions = 0
 		while open_nodes:
 			node = heappop(open_nodes)
 
@@ -101,14 +101,13 @@ class SearchProblem:
 			close_node(node)
 
 			if node.positions == node.goal:
-				print(f"Expansions: {exp}")
+				#print(f"Expansions: {expansions}")
 				return self.traceback(node)
 
-			#is this it?
-			if node.gcost > limitdepth:
+			if expansions  > limitexp or node.gcost > limitdepth:
 				continue
 
-			exp += 1 #check this
+			expansions += 1 #check this
 			# Generate all possible from neighbours
 			neighbours = [self.map[pos] for pos in node.positions]
 			combinations = itertools.product(*neighbours)
@@ -136,7 +135,6 @@ class SearchProblem:
 				if not out_of_tickets:
 					dest_node = Node(node, [path[DEST] for path in dest], [path[TRANSPORT] for path in dest],
 										new_tickets, node.goal, node.gcost + 1, self.distances)
-					#if dest_node not in closed_nodes: # Check if this if is worth
 					heappush(open_nodes, dest_node)
 
 		return []
