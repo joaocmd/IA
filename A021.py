@@ -85,7 +85,7 @@ class SearchProblem:
 		start_positions = init[:]
 		if anyorder:
 			for goal in itertools.permutations(self.goal):
-					heappush(open_nodes, Node(None, start_positions, [], tickets, goal, 0, self.distances))
+				heappush(open_nodes, Node(None, start_positions, [], tickets, goal, 0, self.distances))
 		else:
 			open_nodes.append(Node(None, start_positions, [], tickets, self.goal, 0, self.distances))
 
