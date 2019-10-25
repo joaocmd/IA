@@ -104,7 +104,7 @@ class SearchProblem:
 
 			if expansions > limitexp or node.gcost > limitdepth:
 				continue
-			expansions += 1 #check this
+			expansions += 1
 
 			# Generate all possible from neighbours
 			neighbours = [self.map[pos] for pos in node.positions]
