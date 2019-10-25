@@ -3,7 +3,7 @@ import copy
 import matplotlib.pyplot as plt
 import time
 import math
-from ruagomesfreiregamesol2 import SearchProblem
+from A021 import SearchProblem
 
 with open("coords.pickle", "rb") as fp:   # Unpickling
     coords = pickle.load(fp)
