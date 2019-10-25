@@ -40,7 +40,6 @@ class SearchProblem:
 	def __init__(self, goal, model, auxheur = []):
 		self.map = model
 		self.goal = tuple(goal)
-		self.n_agents = len(goal) #testar sem guardar isto
 		self.distances = {}
 		self.calc_distances()
 
@@ -79,7 +78,7 @@ class SearchProblem:
 
 	def search(self, init, limitexp = 2000, limitdepth = 10, tickets = [math.inf,math.inf,math.inf], anyorder = False):
 		TRANSPORT, DEST = 0, 1
-
+		agents = range(len(init))
 		open_nodes = []
 
 		start_positions = init[:]
@@ -101,13 +100,12 @@ class SearchProblem:
 			close_node(node)
 
 			if node.positions == node.goal:
-				#print(f"Expansions: {expansions}")
 				return self.traceback(node)
 
-			if expansions  > limitexp or node.gcost > limitdepth:
+			if expansions > limitexp or node.gcost > limitdepth:
 				continue
-
 			expansions += 1 #check this
+
 			# Generate all possible from neighbours
 			neighbours = [self.map[pos] for pos in node.positions]
 			combinations = itertools.product(*neighbours)
@@ -116,7 +114,7 @@ class SearchProblem:
 			diff_positions = []
 			for comb in combinations:
 				occupy_same = False
-				for i in range(self.n_agents):
+				for i in agents:
 					for j in comb[i+1:]:
 						if comb[i][DEST] == j[DEST]:
 							occupy_same = True
