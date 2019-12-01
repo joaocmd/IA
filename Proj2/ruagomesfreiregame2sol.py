@@ -10,21 +10,12 @@ class LearningAgent:
 
 		self.nS = nS
 		self.nA = nA
-		self.Q = [[-1] * nA for s in range(nS)]
+		self.Q = [[-5] * nA for s in range(nS)]
 		self.alpha = float(sys.argv[1])
 		self.gamma = float(sys.argv[2])
-		self.last_len = 0
 	
 	def exploit(self, st, aa):
-		choice = 0
-		max_q = self.Q[st][0]
-
-		for i in range(1, len(aa)):
-			if self.Q[st][i] > max_q:
-				choice = i
-				max_q = self.Q[st][i]
-
-		return choice
+		return self.Q[st].index(max(self.Q[st]))
 
 	def explore(self, st, aa):
 		choice = random.choice(range(len(aa)))
