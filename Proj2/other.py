@@ -15,14 +15,16 @@ def runagent(A, T, R, I = 1, learningphase=True, nlearn = 1000, ntest = 100):
         for ii in range(1,n):
                 aa = T[st][0]
                 if learningphase:
+                        #print("learn")
                         a = A.selectactiontolearn(st,aa)
                 else:
+                        #print("execute")
                         a = A.selectactiontoexecute(st,aa)
                 try:
                         nst = T[st][0][a]
                 except:
-                        pass
-                        #print(st,a)
+                        print(f"Learning? {learningphase}")
+                        print(st,a, aa)
                 r = R[st]
                 J += r
                 ##print(st,nst,a,r)

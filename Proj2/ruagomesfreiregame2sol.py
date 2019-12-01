@@ -11,16 +11,10 @@ class LearningAgent:
 		self.nS = nS
 		self.nA = nA
 		self.Q = [[-5] * nA for s in range(nS)]
+		self.N = [[0] * nA for s in range(nS)]
 		self.alpha = float(sys.argv[1])
 		self.gamma = float(sys.argv[2])
 	
-	def exploit(self, st, aa):
-		return self.Q[st].index(max(self.Q[st]))
-
-	def explore(self, st, aa):
-		choice = random.choice(range(len(aa)))
-		return choice
-
 	# Select one action, used when learning  
 	# st - is the current state        
 	# aa - is the set of possible actions
@@ -28,9 +22,22 @@ class LearningAgent:
 	# returns
 	# a - the index to the action in aa
 	def selectactiontolearn(self,st,aa):
-		# explore %
-		self.last_len = len(aa)
-		return self.explore(st, aa)
+		#Simply choose randomly
+		#choice = random.choice(range(len(aa)))
+
+		#Choose randomly between less frequently picked
+		min_N = min(self.N[st][:len(aa)])
+		indexes = []	
+		for i in range(len(aa)):
+			if self.N[st][i] == min_N:
+				indexes.append(i)
+		choice = random.choice(indexes)
+		self.N[st][choice] += 1
+
+		#Choose first less frequently picked
+		# choice = self.N[st].index(min(self.N[st][:len(aa)]))
+		# self.N[st][choice] += 1
+		return choice
 
 	# Select one action, used when evaluating
 	# st - is the current state        
@@ -39,8 +46,7 @@ class LearningAgent:
 	# returns
 	# a - the index to the action in aa
 	def selectactiontoexecute(self,st,aa):
-		self.last_len = len(aa)
-		return self.exploit(st, aa)
+		return self.Q[st].index(max(self.Q[st][:len(aa)]))
 
 	# this function is called after every action
 	# ost - original state
