@@ -1,6 +1,9 @@
+#Joao Carlos Morgado David - 89471
+#Pedro Miguel da Silva Galhardo - 89522
+
 import random
-import os
 import sys
+from numpy import inf
 
 class LearningAgent:
 
@@ -10,10 +13,12 @@ class LearningAgent:
 
 		self.nS = nS
 		self.nA = nA
-		self.Q = [[-5] * nA for s in range(nS)]
+		self.Q = [[-inf] * nA for s in range(nS)]
 		self.N = [[0] * nA for s in range(nS)]
 		self.alpha = float(sys.argv[1])
 		self.gamma = float(sys.argv[2])
+		# self.alpha = 0.65
+		# self.gamma = 0.8
 	
 	# Select one action, used when learning  
 	# st - is the current state        
@@ -22,8 +27,9 @@ class LearningAgent:
 	# returns
 	# a - the index to the action in aa
 	def selectactiontolearn(self,st,aa):
-		#Simply choose randomly
-		#choice = random.choice(range(len(aa)))
+		if all(e == -inf for e in self.Q[st]):
+			for i in range(len(aa)):
+				self.Q[st][i] = 0
 
 		#Choose randomly between less frequently picked
 		min_N = min(self.N[st][:len(aa)])
@@ -34,9 +40,6 @@ class LearningAgent:
 		choice = random.choice(indexes)
 		self.N[st][choice] += 1
 
-		#Choose first less frequently picked
-		# choice = self.N[st].index(min(self.N[st][:len(aa)]))
-		# self.N[st][choice] += 1
 		return choice
 
 	# Select one action, used when evaluating
@@ -54,4 +57,8 @@ class LearningAgent:
 	# a - the index to the action taken
 	# r - reward obtained
 	def learn(self,ost,nst,a,r):
-		self.Q[ost][a] = self.Q[ost][a] + self.alpha * (r + (self.gamma*max(self.Q[nst])) - self.Q[ost][a])
+		max_Q =  0
+		if any(e != -inf for e in self.Q[nst]):
+			max_Q = max(self.Q[nst])
+
+		self.Q[ost][a] = self.Q[ost][a] + self.alpha * (r + (self.gamma*max_Q) - self.Q[ost][a])

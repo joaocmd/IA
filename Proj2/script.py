@@ -28,6 +28,7 @@ while True:
 		if gamma > 1:
 			alpha += step
 			gamma = 0
+			print(f"{alpha*100}%")
 		if alpha > 1:
 			break
 		thread = threading.Thread(target=run_program, args=(alpha, gamma, f))
