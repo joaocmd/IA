@@ -1,5 +1,6 @@
 #Joao Carlos Morgado David - 89471
 #Pedro Miguel da Silva Galhardo - 89522
+#Grupo - 21
 
 import random
 import sys
