@@ -15,8 +15,6 @@ class LearningAgent:
 		self.nA = nA
 		self.Q = [[-inf] * nA for s in range(nS)]
 		self.N = [[0] * nA for s in range(nS)]
-		#self.alpha = float(sys.argv[1])
-		#self.gamma = float(sys.argv[2])
 		self.alpha = 0.7
 		self.gamma = 0.8
 	
