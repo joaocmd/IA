@@ -15,8 +15,9 @@ class LearningAgent:
 		self.nA = nA
 		self.Q = [[-inf] * nA for s in range(nS)]
 		self.N = [[0] * nA for s in range(nS)]
-		self.alpha = 0.7
+		self.alpha = 0.65
 		self.gamma = 0.8
+		self.epsilon = 1
 	
 	# Select one action, used when learning  
 	# st - is the current state        
@@ -29,15 +30,26 @@ class LearningAgent:
 			for i in range(len(aa)):
 				self.Q[st][i] = 0
 
-		#Choose randomly between less frequently picked
-		min_N = min(self.N[st][:len(aa)])
-		indexes = []	
-		for i in range(len(aa)):
-			if self.N[st][i] == min_N:
-				indexes.append(i)
+		indexes = []
+		if random.uniform(0, 1) > self.epsilon:
+			# Use max_Q
+			max_Q = max(self.Q[st][:len(aa)])			
+			for i in range(len(aa)):
+				if self.Q[st][i] == max_Q:
+					indexes.append(i)
+		else:
+			# Choose randomly between less frequently picked
+			min_N = min(self.N[st][:len(aa)])
+			for i in range(len(aa)):
+				if self.N[st][i] == min_N:
+					indexes.append(i)
+		
 		choice = random.choice(indexes)
 		self.N[st][choice] += 1
 
+		# Gradually enable exploiting using max_Q
+		if self.epsilon > 0.10:
+			self.epsilon -= 0.01
 		return choice
 
 	# Select one action, used when evaluating
@@ -47,7 +59,12 @@ class LearningAgent:
 	# returns
 	# a - the index to the action in aa
 	def selectactiontoexecute(self,st,aa):
-		return self.Q[st].index(max(self.Q[st][:len(aa)]))
+		max_value = max(self.Q[st][:len(aa)])
+		indexes = []
+		for i in range(len(aa)):
+			if self.Q[st][i] == max_value:
+				indexes.append(i)
+		return random.choice(indexes)
 
 	# this function is called after every action
 	# ost - original state
@@ -59,4 +76,4 @@ class LearningAgent:
 		if any(e != -inf for e in self.Q[nst]):
 			max_Q = max(self.Q[nst])
 
-		self.Q[ost][a] = self.Q[ost][a] + self.alpha * (r + (self.gamma*max_Q) - self.Q[ost][a])
+		self.Q[ost][a] = self.Q[ost][a] + self.alpha * (r + (self.gamma * max_Q) - self.Q[ost][a])
